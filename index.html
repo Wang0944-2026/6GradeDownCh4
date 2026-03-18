@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>李白《送友人》雙關卡挑戰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- 引入 Mobile Drag & Drop Polyfill 以支援平板觸控拖曳 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+    <script>
+        MobileDragDrop.polyfill({ holdToDrag: 150 });
+        window.addEventListener('touchmove', function() {}, {passive: false}); 
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: #f4f1ea; 
+            background-image: url('https://www.transparenttextures.com/patterns/rice-paper-2.png');
+            color: #333;
+        }
+
+        /* --- 共用樣式 --- */
+        .slot-active {
+            background-color: #e8e4d9 !important;
+            border-style: dashed !important;
+            border-color: #c94f4f !important;
+        }
+
+        /* --- 關卡一專屬樣式 --- */
+        .l1-title-stamp {
+            display: inline-block;
+            background-color: #c94f4f;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+        .ink-border {
+            border: 2px solid #2c2c2c;
+            box-shadow: 4px 4px 0px rgba(44, 44, 44, 0.8);
+            transition: all 0.2s ease;
+        }
+        .ink-border:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0px rgba(44, 44, 44, 0.8);
+        }
+        #l1-source-container .card-desc { display: none; }
+        #l1-source-container .img-container { margin-bottom: 0 !important; }
+
+        /* --- 關卡二專屬樣式 --- */
+        .l2-title-stamp {
+            display: inline-block;
+            background-color: #385b4f; 
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+        .word-block {
+            background: linear-gradient(135deg, #fdfbf7 0%, #efe7d6 100%);
+            border: 2px solid #8c7355;
+            box-shadow: 2px 2px 0px rgba(140, 115, 85, 0.7);
+            color: #4a3a31;
+            cursor: move;
+            transition: all 0.15s ease;
+        }
+        .word-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0px rgba(140, 115, 85, 0.7);
+            background: #fffdf9;
+        }
+        .locked-block {
+            background: linear-gradient(135deg, #e5dfd3 0%, #d5cfc1 100%);
+            border: 2px solid #6b5c4a;
+            color: #4a3a31;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .l2-slot-active {
+            background-color: #e5dfd3 !important;
+            border-color: #385b4f !important;
+        }
+        #l2-target-container .word-element, #l2-target-container .locked-block { width: 100%; height: 100%; }
+        #l2-source-container .word-element { padding-left: 1rem; padding-right: 1rem; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
+
+    <!-- ============================================== -->
+    <!--                  關卡一：畫面區                  -->
+    <!-- ============================================== -->
+    <div id="level1-container" class="w-full max-w-5xl flex flex-col items-center">
+        <header class="text-center mb-8 max-w-3xl">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
+                <span class="l1-title-stamp">關卡一</span>詩境圖卡排序解謎
+            </h1>
+            <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
+                請仔細觀察下方的 8 張「畫面圖卡」，想像《送友人》的情節推進。<br>
+                <strong class="text-red-700">操作方式：</strong>透過拖曳的方式移動到底下對應的格子中。若想修改，將圖卡直接互拖或拖回待選區即可。
+            </p>
+        </header>
+
+        <main class="w-full flex flex-col gap-8">
+            <div class="bg-white/50 p-6 rounded-xl border border-gray-300 shadow-inner min-h-[150px]">
+                <h2 class="text-xl font-bold mb-4 text-gray-700 border-b-2 border-gray-300 pb-2">散落的畫卷 (待選區)</h2>
+                <div id="l1-source-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-center"></div>
+            </div>
+
+            <div class="bg-[#ece8df] p-6 rounded-xl border-2 border-gray-400 shadow-md">
+                <h2 class="text-xl font-bold mb-4 text-gray-700 border-b-2 border-gray-400 pb-2">詩句順序 (1 ~ 8)</h2>
+                <div id="l1-target-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            </div>
+
+            <div class="flex justify-center mt-4 mb-10">
+                <button id="l1-check-btn" class="bg-[#c94f4f] hover:bg-[#a63d3d] text-white text-xl font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 tracking-widest hidden">
+                    送出
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================== -->
+    <!--                  關卡二：畫面區                  -->
+    <!-- ============================================== -->
+    <div id="level2-container" class="w-full max-w-5xl hidden flex-col items-center">
+        <header class="text-center mb-6 max-w-4xl mt-4">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
+                <span class="l2-title-stamp">關卡二</span>詩句重組挑戰
+            </h1>
+            <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
+                請將上方打散的語詞木牌，拖曳到下方對應的空格中。<br>
+                <strong class="text-[#385b4f]">挑戰：</strong>依照五言律詩的節奏，拼出完整的《送友人》。（附有📌圖示的為固定提示喔！）
+            </p>
+        </header>
+
+        <main class="w-full flex flex-col gap-8">
+            <div class="bg-white/50 p-6 rounded-xl border border-gray-300 shadow-inner min-h-[120px]">
+                <h2 class="text-lg font-bold mb-4 text-gray-700 border-b-2 border-gray-300 pb-2">散落的詞語 (待選區)</h2>
+                <div id="l2-source-container" class="flex flex-wrap gap-3 justify-center"></div>
+            </div>
+
+            <div class="bg-[#ece8df] p-4 md:p-8 rounded-xl border-2 border-gray-400 shadow-md flex flex-col items-center">
+                <h2 class="text-lg font-bold mb-6 text-gray-700 border-b-2 border-gray-400 pb-2 w-full text-left">詩句重組區</h2>
+                <div id="l2-target-container" class="flex flex-col gap-4 md:gap-6 w-full max-w-4xl items-center"></div>
+            </div>
+
+            <div class="flex justify-center mt-2 mb-10">
+                <button id="l2-check-btn" class="bg-[#385b4f] hover:bg-[#2c473e] text-white text-xl font-bold py-3 px-12 rounded-full shadow-lg transition duration-300 tracking-widest hidden">
+                    送出
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================== -->
+    <!--                  彈跳視窗區                    -->
+    <!-- ============================================== -->
+    
+    <!-- 關卡一過關 -->
+    <div id="l1-success-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50">
+        <div class="bg-[#f4f1ea] p-8 rounded-xl border-4 border-[#c94f4f] shadow-2xl max-w-md text-center transform scale-95 transition-transform duration-300">
+            <div class="text-6xl mb-4">📜🎉</div>
+            <h2 class="text-3xl font-bold mb-2 text-[#c94f4f]">太厲害了！</h2>
+            <p class="text-lg text-gray-700 mb-6">你成功還原了李白《送友人》的完整場景！準備好挑戰文字重組了嗎？</p>
+            <button onclick="transitionToLevel2()" class="bg-[#c94f4f] hover:bg-[#a63d3d] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-3 w-full">
+                進入 - 關卡二
+            </button>
+            <button onclick="l1_resetGame()" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200">
+                再玩一次本關
+            </button>
+        </div>
+    </div>
+
+    <!-- 關卡二過關 -->
+    <div id="l2-success-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50">
+        <div class="bg-[#f4f1ea] p-8 rounded-xl border-4 border-[#385b4f] shadow-2xl max-w-md text-center transform scale-95 transition-transform duration-300">
+            <div class="text-6xl mb-4">🏆📖</div>
+            <h2 class="text-3xl font-bold mb-2 text-[#385b4f]">完美過關！</h2>
+            <p class="text-lg text-gray-700 mb-6">太棒了！你已經完全掌握了《送友人》的意境、對仗與結構！</p>
+            <button onclick="l2_resetGame()" class="bg-gray-800 hover:bg-black text-white py-2 px-8 rounded-lg text-lg transition duration-200 w-full mb-3">
+                再次挑戰本關
+            </button>
+            <button onclick="transitionToLevel1()" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200">
+                回到關卡一
+            </button>
+        </div>
+    </div>
+
+    <!-- 錯誤提示 -->
+    <div id="error-toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-red-100 border border-red-400 text-red-700 px-6 py-3 rounded-lg shadow-lg hidden transition-opacity duration-300 z-[60]">
+        <span id="error-msg" class="font-bold">順序有點不對喔！</span> <span id="error-sub">錯誤的圖卡已退回，請重新思考起承轉合的邏輯。</span>
+    </div>
+
+    <!-- 圖片放大 Lightbox -->
+    <div id="lightbox" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-[100] cursor-zoom-out" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" class="max-w-[90vw] max-h-[90vh] object-contain border-4 border-white rounded shadow-2xl transform scale-95 transition-transform duration-200">
+    </div>
+
+    <!-- ============================================== -->
+    <!--                  遊戲主邏輯腳本                  -->
+    <!-- ============================================== -->
+    <script>
+        // 共用錯誤提示功能
+        function showError(mainMsg, subMsg) {
+            const toast = document.getElementById('error-toast');
+            document.getElementById('error-msg').innerText = mainMsg;
+            document.getElementById('error-sub').innerText = subMsg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+        }
+
+        // 關卡切換動畫與邏輯
+        function transitionToLevel2() {
+            document.getElementById('l1-success-modal').classList.add('hidden');
+            document.getElementById('level1-container').classList.add('hidden');
+            document.getElementById('level1-container').classList.remove('flex');
+            
+            document.getElementById('level2-container').classList.remove('hidden');
+            document.getElementById('level2-container').classList.add('flex');
+            
+            l2_initGame(); // 初始化關卡二
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function transitionToLevel1() {
+            document.getElementById('l2-success-modal').classList.add('hidden');
+            document.getElementById('level2-container').classList.add('hidden');
+            document.getElementById('level2-container').classList.remove('flex');
+            
+            document.getElementById('level1-container').classList.remove('hidden');
+            document.getElementById('level1-container').classList.add('flex');
+            
+            l1_initGame(); // 重置關卡一
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* =========================================================================
+           關卡一：詩境圖卡排序邏輯
+           ========================================================================= */
+        const l1_cardData = [
+            { id: 1, text: "青山橫北郭", desc: "遠方綿延的青山", emoji: "⛰️", imgUrl: "https://lh3.googleusercontent.com/d/1sxdj5q83_6iWXXZJpmrFgAECbRXM6bgg" },
+            { id: 2, text: "白水繞東城", desc: "環繞城牆的河流", emoji: "🏞️", imgUrl: "https://lh3.googleusercontent.com/d/1lQw3A7SAOyP8TgLayc71t56bPR6o29_R" },
+            { id: 3, text: "此地一為別", desc: "城外荒野兩人道別", emoji: "🧍‍♂️🧍", imgUrl: "https://lh3.googleusercontent.com/d/1cWm7fpDiuZtJw4BkCuetxPJN22-OMLOH" },
+            { id: 4, text: "孤蓬萬里征", desc: "獨自飄飛的蓬草", emoji: "🍂", imgUrl: "https://lh3.googleusercontent.com/d/16HOgKd4E5UmoL-NeoazSwCphkGxqoU5M" },
+            { id: 5, text: "浮雲遊子意", desc: "天空漂泊的白雲", emoji: "☁️", imgUrl: "https://lh3.googleusercontent.com/d/1DfiqK7R2xjW0uQRdZFl8qHxw2nKH-5hP" },
+            { id: 6, text: "落日故人情", desc: "夕陽餘暉染紅天際", emoji: "🌇", imgUrl: "https://lh3.googleusercontent.com/d/1tyWqukJnqY5Dm4GugFMyivhlXR3zj_yl" },
+            { id: 7, text: "揮手自茲去", desc: "兩人互相揮手轉身", emoji: "👋", imgUrl: "https://lh3.googleusercontent.com/d/1_qi4qUOeNvOVElVf_bk-r24Y9NNmDqzi" },
+            { id: 8, text: "蕭蕭班馬鳴", desc: "馬兒仰天發出長鳴", emoji: "🐎", imgUrl: "https://lh3.googleusercontent.com/d/1iPGVBOixRI_Li_vRPXW1O05FgfDDhEHu" }
+        ];
+
+        let l1_draggedCard = null;
+        let l1_placedCards = new Array(8).fill(null);
+
+        function l1_initGame() {
+            const sourceContainer = document.getElementById('l1-source-container');
+            const targetContainer = document.getElementById('l1-target-container');
+            
+            sourceContainer.innerHTML = '';
+            targetContainer.innerHTML = '';
+            l1_placedCards = new Array(8).fill(null);
+            document.getElementById('l1-check-btn').classList.add('hidden');
+
+            sourceContainer.addEventListener('dragover', l1_handleDragOver);
+            sourceContainer.addEventListener('drop', l1_handleDropOnSource);
+
+            const shuffledCards = [...l1_cardData].sort(() => Math.random() - 0.5);
+
+            shuffledCards.forEach(card => {
+                const cardEl = l1_createCardElement(card);
+                sourceContainer.appendChild(cardEl);
+            });
+
+            for (let i = 0; i < 8; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'bg-white/40 border-2 border-dashed border-gray-400 rounded-lg h-32 md:h-40 flex flex-col items-center justify-center transition-colors relative';
+                slot.dataset.index = i;
+                
+                const numberLabel = document.createElement('span');
+                numberLabel.className = 'text-4xl font-bold text-gray-300 absolute z-0 pointer-events-none';
+                numberLabel.innerText = i + 1;
+                slot.appendChild(numberLabel);
+
+                slot.addEventListener('dragover', l1_handleDragOver);
+                slot.addEventListener('dragenter', l1_handleDragEnter);
+                slot.addEventListener('dragleave', l1_handleDragLeave);
+                slot.addEventListener('drop', l1_handleDropOnSlot);
+
+                targetContainer.appendChild(slot);
+            }
+        }
+
+        function l1_createCardElement(card) {
+            const el = document.createElement('div');
+            el.draggable = true;
+            el.className = 'l1-card-element bg-white ink-border rounded-lg p-2 w-full max-w-[12rem] flex flex-col items-center justify-center cursor-move z-10 relative transition-all duration-200';
+            el.dataset.id = card.id;
+            el.innerHTML = `
+                <div class="img-container w-full h-24 md:h-28 mb-2 overflow-hidden rounded border border-gray-200 relative bg-[#ece8df] flex items-center justify-center group cursor-zoom-in" onclick="zoomImage(event, '${card.imgUrl}')">
+                    <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center z-20 transition-opacity">
+                        <span class="text-white text-3xl">🔍</span>
+                    </div>
+                    <div class="absolute text-4xl">${card.emoji}</div>
+                    <img src="${card.imgUrl}" alt="${card.desc}" 
+                         class="w-full h-full object-cover relative z-10 pointer-events-none"
+                         onerror="this.style.display='none'">
+                </div>
+                <div class="card-desc text-sm font-bold text-center text-gray-800 leading-tight">${card.desc}</div>
+            `;
+            
+            el.addEventListener('dragstart', l1_handleDragStart);
+            el.addEventListener('dragend', l1_handleDragEnd);
+            return el;
+        }
+
+        function l1_handleDragStart(e) {
+            l1_draggedCard = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.id); 
+            setTimeout(() => this.classList.add('opacity-50', 'scale-95'), 0);
+        }
+
+        function l1_handleDragEnd(e) {
+            this.classList.remove('opacity-50', 'scale-95');
+            l1_draggedCard = null;
+            document.querySelectorAll('#l1-target-container .slot-active').forEach(el => el.classList.remove('slot-active'));
+        }
+
+        function l1_handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; }
+
+        function l1_handleDragEnter(e) {
+            e.preventDefault();
+            if (this.classList.contains('border-dashed')) this.classList.add('slot-active');
+        }
+
+        function l1_handleDragLeave(e) {
+            if (this.classList.contains('border-dashed')) this.classList.remove('slot-active');
+        }
+
+        function l1_handleDropOnSlot(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.classList.remove('slot-active');
+
+            if (!l1_draggedCard) return;
+
+            const cardId = parseInt(l1_draggedCard.dataset.id);
+            const slotIndex = parseInt(this.dataset.index);
+            const sourceParent = l1_draggedCard.parentElement;
+
+            if (sourceParent === this) return false;
+
+            let oldIndex = -1;
+            if (sourceParent.id !== 'l1-source-container') {
+                oldIndex = parseInt(sourceParent.dataset.index);
+                l1_placedCards[oldIndex] = null; 
+            }
+
+            if (l1_placedCards[slotIndex] !== null) {
+                const existingCard = this.querySelector('.l1-card-element');
+                if (existingCard && existingCard !== l1_draggedCard) {
+                    if (oldIndex !== -1) {
+                        sourceParent.appendChild(existingCard);
+                        l1_placedCards[oldIndex] = parseInt(existingCard.dataset.id);
+                    } else {
+                        document.getElementById('l1-source-container').appendChild(existingCard);
+                    }
+                }
+            }
+
+            this.appendChild(l1_draggedCard);
+            l1_placedCards[slotIndex] = cardId;
+            l1_checkCompletion();
+            return false;
+        }
+
+        function l1_handleDropOnSource(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            if (!l1_draggedCard) return;
+
+            if (l1_draggedCard.parentElement.id !== 'l1-source-container') {
+                const oldIndex = parseInt(l1_draggedCard.parentElement.dataset.index);
+                l1_placedCards[oldIndex] = null;
+            }
+            this.appendChild(l1_draggedCard);
+            l1_checkCompletion();
+            return false;
+        }
+
+        function l1_checkCompletion() {
+            const isFull = l1_placedCards.every(card => card !== null);
+            const checkBtn = document.getElementById('l1-check-btn');
+            if (isFull) {
+                checkBtn.classList.remove('hidden'); checkBtn.classList.add('animate-pulse');
+            } else {
+                checkBtn.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('l1-check-btn').addEventListener('click', () => {
+            let isAllCorrect = true;
+            let wrongCards = []; 
+
+            l1_placedCards.forEach((cardId, index) => {
+                if (cardId !== index + 1) {
+                    isAllCorrect = false;
+                    const slot = document.querySelector(`#l1-target-container [data-index="${index}"]`);
+                    const cardEl = slot.querySelector('.l1-card-element');
+                    if (cardEl) wrongCards.push({ el: cardEl, slotIndex: index });
+                }
+            });
+
+            if (isAllCorrect) {
+                document.getElementById('l1-success-modal').classList.remove('hidden');
+            } else {
+                showError("順序有點不對喔！", "錯誤的圖卡已退回，請重新思考起承轉合的邏輯。");
+                const sourceContainer = document.getElementById('l1-source-container');
+                wrongCards.forEach(item => {
+                    item.el.classList.add('border-red-500', 'animate-bounce');
+                    setTimeout(() => {
+                        item.el.classList.remove('border-red-500', 'animate-bounce');
+                        sourceContainer.appendChild(item.el); 
+                        l1_placedCards[item.slotIndex] = null;   
+                        l1_checkCompletion(); 
+                    }, 1200); 
+                });
+            }
+        });
+
+        function l1_resetGame() {
+            document.getElementById('l1-success-modal').classList.add('hidden');
+            l1_initGame();
+        }
+
+        /* 圖片放大邏輯 */
+        function zoomImage(e, url) {
+            e.stopPropagation(); 
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = url;
+            lightbox.classList.remove('hidden');
+            setTimeout(() => {
+                lightboxImg.classList.remove('scale-95'); lightboxImg.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.classList.remove('scale-100'); lightboxImg.classList.add('scale-95');
+            setTimeout(() => { lightbox.classList.add('hidden'); }, 200);
+        }
+
+        /* =========================================================================
+           關卡二：詩句重組邏輯
+           ========================================================================= */
+        const l2_wordData = [
+            { id: 1, text: "青山" }, { id: 2, text: "橫" }, { id: 3, text: "北郭" },
+            { id: 4, text: "白水" }, { id: 5, text: "繞" }, { id: 6, text: "東城" },
+            { id: 7, text: "此地" }, { id: 8, text: "一為" }, { id: 9, text: "別" },
+            { id: 10, text: "孤蓬" }, { id: 11, text: "萬里" }, { id: 12, text: "征" },
+            { id: 13, text: "浮雲" }, { id: 14, text: "遊子" }, { id: 15, text: "意" },
+            { id: 16, text: "落日" }, { id: 17, text: "故人" }, { id: 18, text: "情" },
+            { id: 19, text: "揮手" }, { id: 20, text: "自茲" }, { id: 21, text: "去" },
+            { id: 22, text: "蕭蕭" }, { id: 23, text: "班馬" }, { id: 24, text: "鳴" }
+        ];
+
+        let l2_draggedWord = null;
+        let l2_placedWords = new Array(24).fill(null);
+
+        function l2_getNonAdjacentIndices(total, count) {
+            let valid = false;
+            let indices = [];
+            while (!valid) {
+                indices = [];
+                while (indices.length < count) {
+                    let r = Math.floor(Math.random() * total);
+                    if (!indices.includes(r)) indices.push(r);
+                }
+                indices.sort((a, b) => a - b);
+                valid = true;
+                for (let i = 0; i < indices.length - 1; i++) {
+                    if (indices[i + 1] - indices[i] <= 1) { valid = false; break; }
+                }
+            }
+            return indices;
+        }
+
+        function l2_initGame() {
+            const sourceContainer = document.getElementById('l2-source-container');
+            const targetContainer = document.getElementById('l2-target-container');
+            
+            sourceContainer.innerHTML = '';
+            targetContainer.innerHTML = '';
+            l2_placedWords = new Array(24).fill(null);
+            document.getElementById('l2-check-btn').classList.add('hidden');
+
+            sourceContainer.addEventListener('dragover', l2_handleDragOver);
+            sourceContainer.addEventListener('drop', l2_handleDropOnSource);
+
+            for (let row = 0; row < 4; row++) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'flex flex-col md:flex-row items-center gap-3 md:gap-8 w-full';
+                
+                for (let sen = 0; sen < 2; sen++) {
+                    const senIndex = row * 2 + sen; 
+                    const senDiv = document.createElement('div');
+                    senDiv.className = 'flex items-center gap-2 w-full md:flex-1';
+                    
+                    const numSpan = document.createElement('span');
+                    numSpan.className = 'w-5 text-right text-gray-500 font-bold hidden md:inline-block';
+                    numSpan.innerText = (senIndex + 1) + '.';
+                    senDiv.appendChild(numSpan);
+
+                    for (let c = 0; c < 3; c++) {
+                        const index = senIndex * 3 + c;
+                        const slot = document.createElement('div');
+                        slot.className = 'slot flex-1 border-2 border-dashed border-gray-400 rounded bg-white/50 h-12 md:h-14 flex items-center justify-center transition-colors relative';
+                        slot.dataset.index = index;
+                        slot.dataset.locked = "false";
+                        
+                        slot.addEventListener('dragover', l2_handleDragOver);
+                        slot.addEventListener('dragenter', l2_handleDragEnter);
+                        slot.addEventListener('dragleave', l2_handleDragLeave);
+                        slot.addEventListener('drop', l2_handleDropOnSlot);
+
+                        senDiv.appendChild(slot);
+                    }
+                    rowDiv.appendChild(senDiv);
+                }
+                targetContainer.appendChild(rowDiv);
+            }
+
+            const hintIndices = l2_getNonAdjacentIndices(24, 4);
+            const sourceWords = [];
+
+            l2_wordData.forEach((word, index) => {
+                if (hintIndices.includes(index)) {
+                    const slot = document.querySelector(`#l2-target-container .slot[data-index="${index}"]`);
+                    slot.dataset.locked = "true";
+                    slot.classList.remove('border-dashed', 'border-gray-400');
+                    slot.classList.add('border-solid', 'border-[#6b5c4a]', 'bg-[#e5dfd3]'); 
+                    
+                    const lockedEl = document.createElement('div');
+                    lockedEl.className = 'locked-block rounded flex items-center justify-center font-bold text-lg md:text-xl w-full h-full relative cursor-not-allowed';
+                    lockedEl.innerHTML = `<span>${word.text}</span><span class="absolute top-1 right-1 text-xs opacity-60">📌</span>`;
+                    
+                    slot.appendChild(lockedEl);
+                    l2_placedWords[index] = word.id;
+                } else {
+                    sourceWords.push(word);
+                }
+            });
+
+            sourceWords.sort(() => Math.random() - 0.5).forEach(word => {
+                sourceContainer.appendChild(l2_createWordElement(word));
+            });
+
+            l2_checkCompletion();
+        }
+
+        function l2_createWordElement(word) {
+            const el = document.createElement('div');
+            el.draggable = true;
+            el.className = 'word-element word-block rounded py-1 md:py-2 flex items-center justify-center font-bold text-lg md:text-xl z-10 relative';
+            el.dataset.id = word.id;
+            el.innerText = word.text;
+            el.addEventListener('dragstart', l2_handleDragStart);
+            el.addEventListener('dragend', l2_handleDragEnd);
+            return el;
+        }
+
+        function l2_handleDragStart(e) {
+            l2_draggedWord = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.id);
+            setTimeout(() => this.classList.add('opacity-50'), 0);
+        }
+
+        function l2_handleDragEnd(e) {
+            this.classList.remove('opacity-50');
+            l2_draggedWord = null;
+            document.querySelectorAll('#l2-target-container .l2-slot-active').forEach(el => el.classList.remove('l2-slot-active', 'slot-active'));
+        }
+
+        function l2_handleDragOver(e) {
+            if (this.dataset && this.dataset.locked === "true") return false;
+            e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false;
+        }
+
+        function l2_handleDragEnter(e) {
+            if (this.dataset && this.dataset.locked === "true") return false;
+            e.preventDefault();
+            if (this.classList.contains('border-dashed')) this.classList.add('l2-slot-active', 'slot-active');
+        }
+
+        function l2_handleDragLeave(e) {
+            if (this.classList.contains('border-dashed')) this.classList.remove('l2-slot-active', 'slot-active');
+        }
+
+        function l2_handleDropOnSlot(e) {
+            if (this.dataset.locked === "true") return false;
+            e.stopPropagation(); e.preventDefault();
+            this.classList.remove('l2-slot-active', 'slot-active');
+
+            if (!l2_draggedWord) return;
+
+            const wordId = parseInt(l2_draggedWord.dataset.id);
+            const slotIndex = parseInt(this.dataset.index);
+            const sourceParent = l2_draggedWord.parentElement;
+
+            if (sourceParent === this) return false;
+
+            let oldIndex = -1;
+            if (sourceParent.id !== 'l2-source-container') {
+                oldIndex = parseInt(sourceParent.dataset.index);
+                l2_placedWords[oldIndex] = null;
+            }
+
+            if (l2_placedWords[slotIndex] !== null) {
+                const existingWord = this.querySelector('.word-element');
+                if (existingWord && existingWord !== l2_draggedWord) {
+                    if (oldIndex !== -1) {
+                        sourceParent.appendChild(existingWord);
+                        l2_placedWords[oldIndex] = parseInt(existingWord.dataset.id);
+                    } else {
+                        document.getElementById('l2-source-container').appendChild(existingWord);
+                    }
+                }
+            }
+
+            this.appendChild(l2_draggedWord);
+            l2_placedWords[slotIndex] = wordId;
+            l2_checkCompletion();
+            return false;
+        }
+
+        function l2_handleDropOnSource(e) {
+            e.stopPropagation(); e.preventDefault();
+            if (!l2_draggedWord) return;
+
+            if (l2_draggedWord.parentElement.id !== 'l2-source-container') {
+                const oldIndex = parseInt(l2_draggedWord.parentElement.dataset.index);
+                l2_placedWords[oldIndex] = null;
+            }
+            this.appendChild(l2_draggedWord);
+            l2_checkCompletion();
+            return false;
+        }
+
+        function l2_checkCompletion() {
+            const isFull = l2_placedWords.every(word => word !== null);
+            const checkBtn = document.getElementById('l2-check-btn');
+            if (isFull) { checkBtn.classList.remove('hidden'); checkBtn.classList.add('animate-pulse'); } 
+            else { checkBtn.classList.add('hidden'); }
+        }
+
+        document.getElementById('l2-check-btn').addEventListener('click', () => {
+            let isAllCorrect = true;
+            let wrongWords = []; 
+
+            l2_placedWords.forEach((wordId, index) => {
+                const slot = document.querySelector(`#l2-target-container .slot[data-index="${index}"]`);
+                if (slot && slot.dataset.locked !== "true" && wordId !== index + 1) {
+                    isAllCorrect = false;
+                    const wordEl = slot.querySelector('.word-element');
+                    if (wordEl) wrongWords.push({ el: wordEl, slotIndex: index });
+                }
+            });
+
+            if (isAllCorrect) {
+                document.getElementById('l2-success-modal').classList.remove('hidden');
+            } else {
+                showError("有幾句詩排錯了喔！", "錯誤的詞語已退回，請再試試看。");
+                const sourceContainer = document.getElementById('l2-source-container');
+                wrongWords.forEach(item => {
+                    item.el.classList.add('border-red-500', 'text-red-700', 'animate-pulse');
+                    setTimeout(() => {
+                        item.el.classList.remove('border-red-500', 'text-red-700', 'animate-pulse');
+                        sourceContainer.appendChild(item.el); 
+                        l2_placedWords[item.slotIndex] = null;   
+                        l2_checkCompletion(); 
+                    }, 1200); 
+                });
+            }
+        });
+
+        function l2_resetGame() {
+            document.getElementById('l2-success-modal').classList.add('hidden');
+            l2_initGame();
+        }
+
+        // ==============================================
+        //                  啟動點
+        // ==============================================
+        // 頁面載入時只初始化關卡一
+        l1_initGame();
+    </script>
+</body>
+</html>
