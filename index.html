@@ -7,11 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     
+    <!-- 優化3：預先載入 8 張圖片，實現零延遲秒開 -->
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1sxdj5q83_6iWXXZJpmrFgAECbRXM6bgg">
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1lQw3A7SAOyP8TgLayc71t56bPR6o29_R">
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1cWm7fpDiuZtJw4BkCuetxPJN22-OMLOH">
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/16HOgKd4E5UmoL-NeoazSwCphkGxqoU5M">
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1DfiqK7R2xjW0uQRdZFl8qHxw2nKH-5hP">
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1tyWqukJnqY5Dm4GugFMyivhlXR3zj_yl">
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1_qi4qUOeNvOVElVf_bk-r24Y9NNmDqzi">
+    <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1iPGVBOixRI_Li_vRPXW1O05FgfDDhEHu">
+
     <!-- 引入 Mobile Drag & Drop Polyfill 以支援平板觸控拖曳 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
     <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
     <script>
-        MobileDragDrop.polyfill({ holdToDrag: 150 });
+        // 優化1：將 holdToDrag 設為 0，實現平板瞬間拖曳無延遲
+        MobileDragDrop.polyfill({ holdToDrag: 0 });
         window.addEventListener('touchmove', function() {}, {passive: false}); 
     </script>
 
@@ -23,24 +34,70 @@
             color: #333;
         }
 
+        /* --- 書籤導覽列樣式 (Tabs) --- */
+        .bookmarks-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #8c7355;
+            padding-bottom: 0;
+            width: 100%;
+            max-w: 1024px;
+        }
+        .bookmark-tab {
+            padding: 12px 24px;
+            background: #d5cfc1;
+            border: 2px solid #8c7355;
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #5a4a3e;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            top: 3px; /* 為了蓋住底線 */
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bookmark-tab.active {
+            background: #fdfbf7;
+            color: #c94f4f;
+            border-color: #8c7355;
+            padding-bottom: 15px; /* 凸出感 */
+            top: 0;
+            z-index: 10;
+        }
+        .bookmark-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #fdfbf7; /* 蓋掉底下的線 */
+        }
+        .bookmark-tab.locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: #ccc6b8;
+        }
+
         /* --- 共用樣式 --- */
         .slot-active {
             background-color: #e8e4d9 !important;
             border-style: dashed !important;
             border-color: #c94f4f !important;
         }
+        /* 優化1配套：防止拖曳時瀏覽器同時滾動 */
+        .card-element, .word-element {
+            touch-action: none;
+        }
 
         /* --- 關卡一專屬樣式 --- */
-        .l1-title-stamp {
-            display: inline-block;
-            background-color: #c94f4f;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            margin-right: 12px;
-            vertical-align: middle;
-        }
         .ink-border {
             border: 2px solid #2c2c2c;
             box-shadow: 4px 4px 0px rgba(44, 44, 44, 0.8);
@@ -54,16 +111,6 @@
         #l1-source-container .img-container { margin-bottom: 0 !important; }
 
         /* --- 關卡二專屬樣式 --- */
-        .l2-title-stamp {
-            display: inline-block;
-            background-color: #385b4f; 
-            color: white;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            margin-right: 12px;
-            vertical-align: middle;
-        }
         .word-block {
             background: linear-gradient(135deg, #fdfbf7 0%, #efe7d6 100%);
             border: 2px solid #8c7355;
@@ -93,14 +140,21 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
 
+    <!-- 優化2：書籤導覽列 (Tabs) -->
+    <div class="bookmarks-container">
+        <div id="tab1" class="bookmark-tab active" onclick="switchTab(1)">
+            關卡一：詩境排序
+        </div>
+        <div id="tab2" class="bookmark-tab locked" onclick="switchTab(2)">
+            <span id="tab2-lock">🔒</span> 關卡二：詩句排序
+        </div>
+    </div>
+
     <!-- ============================================== -->
     <!--                  關卡一：畫面區                  -->
     <!-- ============================================== -->
     <div id="level1-container" class="w-full max-w-5xl flex flex-col items-center">
-        <header class="text-center mb-8 max-w-3xl">
-            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
-                <span class="l1-title-stamp">關卡一</span>詩境圖卡排序解謎
-            </h1>
+        <header class="text-center mb-6 max-w-3xl">
             <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
                 請仔細觀察下方的 8 張「畫面圖卡」，想像《送友人》的情節推進。<br>
                 <strong class="text-red-700">操作方式：</strong>透過拖曳的方式移動到底下對應的格子中。若想修改，將圖卡直接互拖或拖回待選區即可。
@@ -118,7 +172,7 @@
                 <div id="l1-target-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
             </div>
 
-            <div class="flex justify-center mt-4 mb-10">
+            <div class="flex justify-center mt-2 mb-10">
                 <button id="l1-check-btn" class="bg-[#c94f4f] hover:bg-[#a63d3d] text-white text-xl font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 tracking-widest hidden">
                     送出
                 </button>
@@ -130,10 +184,7 @@
     <!--                  關卡二：畫面區                  -->
     <!-- ============================================== -->
     <div id="level2-container" class="w-full max-w-5xl hidden flex-col items-center">
-        <header class="text-center mb-6 max-w-4xl mt-4">
-            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
-                <span class="l2-title-stamp">關卡二</span>詩句重組挑戰
-            </h1>
+        <header class="text-center mb-6 max-w-4xl">
             <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
                 請將上方打散的語詞木牌，拖曳到下方對應的空格中。<br>
                 <strong class="text-[#385b4f]">挑戰：</strong>依照五言律詩的節奏，拼出完整的《送友人》。（附有📌圖示的為固定提示喔！）
@@ -168,7 +219,7 @@
         <div class="bg-[#f4f1ea] p-8 rounded-xl border-4 border-[#c94f4f] shadow-2xl max-w-md text-center transform scale-95 transition-transform duration-300">
             <div class="text-6xl mb-4">📜🎉</div>
             <h2 class="text-3xl font-bold mb-2 text-[#c94f4f]">太厲害了！</h2>
-            <p class="text-lg text-gray-700 mb-6">你成功還原了李白《送友人》的完整場景！準備好挑戰文字重組了嗎？</p>
+            <p class="text-lg text-gray-700 mb-6">你成功還原了李白《送友人》的完整場景！書籤已為您解鎖，準備好挑戰文字重組了嗎？</p>
             <button onclick="transitionToLevel2()" class="bg-[#c94f4f] hover:bg-[#a63d3d] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-3 w-full">
                 進入 - 關卡二
             </button>
@@ -187,7 +238,7 @@
             <button onclick="l2_resetGame()" class="bg-gray-800 hover:bg-black text-white py-2 px-8 rounded-lg text-lg transition duration-200 w-full mb-3">
                 再次挑戰本關
             </button>
-            <button onclick="transitionToLevel1()" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200">
+            <button onclick="switchTab(1); document.getElementById('l2-success-modal').classList.add('hidden');" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200">
                 回到關卡一
             </button>
         </div>
@@ -207,6 +258,56 @@
     <!--                  遊戲主邏輯腳本                  -->
     <!-- ============================================== -->
     <script>
+        // -------------------------
+        // 系統與書籤導覽邏輯
+        // -------------------------
+        let isLevel2Unlocked = false;
+
+        function checkUnlockStatus() {
+            if (sessionStorage.getItem('level1_passed') === 'true') {
+                unlockLevel2();
+            }
+        }
+
+        function unlockLevel2() {
+            isLevel2Unlocked = true;
+            const tab2 = document.getElementById('tab2');
+            tab2.classList.remove('locked');
+            document.getElementById('tab2-lock').style.display = 'none';
+        }
+
+        function switchTab(level) {
+            const tab1 = document.getElementById('tab1');
+            const tab2 = document.getElementById('tab2');
+            const container1 = document.getElementById('level1-container');
+            const container2 = document.getElementById('level2-container');
+
+            if (level === 1) {
+                tab1.classList.add('active');
+                tab2.classList.remove('active');
+                container1.classList.remove('hidden'); container1.classList.add('flex');
+                container2.classList.add('hidden'); container2.classList.remove('flex');
+            } else if (level === 2) {
+                if (!isLevel2Unlocked) {
+                    showError("關卡尚未解鎖！", "請先完成「關卡一：詩境排序」。");
+                    return;
+                }
+                tab2.classList.add('active');
+                tab1.classList.remove('active');
+                container2.classList.remove('hidden'); container2.classList.add('flex');
+                container1.classList.add('hidden'); container1.classList.remove('flex');
+                
+                // 確保切換時有關卡內容
+                if(l2_placedWords.every(w => w === null)) l2_initGame();
+            }
+        }
+
+        function transitionToLevel2() {
+            document.getElementById('l1-success-modal').classList.add('hidden');
+            switchTab(2);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         // 共用錯誤提示功能
         function showError(mainMsg, subMsg) {
             const toast = document.getElementById('error-toast');
@@ -214,31 +315,6 @@
             document.getElementById('error-sub').innerText = subMsg;
             toast.classList.remove('hidden');
             setTimeout(() => { toast.classList.add('hidden'); }, 3500);
-        }
-
-        // 關卡切換動畫與邏輯
-        function transitionToLevel2() {
-            document.getElementById('l1-success-modal').classList.add('hidden');
-            document.getElementById('level1-container').classList.add('hidden');
-            document.getElementById('level1-container').classList.remove('flex');
-            
-            document.getElementById('level2-container').classList.remove('hidden');
-            document.getElementById('level2-container').classList.add('flex');
-            
-            l2_initGame(); // 初始化關卡二
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function transitionToLevel1() {
-            document.getElementById('l2-success-modal').classList.add('hidden');
-            document.getElementById('level2-container').classList.add('hidden');
-            document.getElementById('level2-container').classList.remove('flex');
-            
-            document.getElementById('level1-container').classList.remove('hidden');
-            document.getElementById('level1-container').classList.add('flex');
-            
-            l1_initGame(); // 重置關卡一
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         /* =========================================================================
@@ -418,6 +494,8 @@
             });
 
             if (isAllCorrect) {
+                sessionStorage.setItem('level1_passed', 'true');
+                unlockLevel2(); // 解鎖書籤二
                 document.getElementById('l1-success-modal').classList.remove('hidden');
             } else {
                 showError("順序有點不對喔！", "錯誤的圖卡已退回，請重新思考起承轉合的邏輯。");
@@ -700,8 +778,11 @@
         // ==============================================
         //                  啟動點
         // ==============================================
-        // 頁面載入時只初始化關卡一
+        // 清除舊紀錄確保從頭開始
+        sessionStorage.removeItem('level1_passed');
+        checkUnlockStatus();
         l1_initGame();
+        switchTab(1);
     </script>
 </body>
 </html>
