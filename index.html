@@ -102,7 +102,16 @@
             border-style: dashed !important;
             border-color: #c94f4f !important;
         }
-        
+
+        /* 【終極優化：消滅拖曳殘影與晃動】 
+           強制關閉拖曳分身的 CSS 動畫轉場，讓它 100% 緊貼手指 */
+        .dnd-poly-drag-image {
+            transition: none !important; 
+            opacity: 0.9 !important; /* 讓分身稍微透明，增加層次感 */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4) !important; /* 增加浮空感 */
+            transform-origin: center center !important;
+        }
+
         /* 【iPad 終極優化】強制關閉所有原生選取與長按行為 */
         .card-element, .word-element {
             touch-action: none !important; 
