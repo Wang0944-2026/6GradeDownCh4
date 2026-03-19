@@ -21,8 +21,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
     <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
     <script>
-        // 【iPad 終極優化】設定 50 毫秒的極短延遲，讓 iPad 能區分「點擊放大」與「拖曳」
-        MobileDragDrop.polyfill({ holdToDrag: 50 });
+        // 【iPad 終極優化】加入 forceApply: true，強制推翻 iOS 15+ 內建的長按機制，實現「瞬間拖曳」
+        MobileDragDrop.polyfill({ 
+            forceApply: true, 
+            holdToDrag: 0 
+        });
         // 基礎的防止預設捲動
         window.addEventListener('touchmove', function() {}, {passive: false}); 
     </script>
@@ -35,6 +38,10 @@
             color: #333;
             /* 禁用 iPad 邊緣的彈性拉扯效果 (Overscroll) */
             overscroll-behavior-y: none;
+            /* 全域禁用文字選取，徹底解決 iPad 滑動時的選取干擾 */
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         /* --- 書籤導覽列樣式 (Tabs) --- */
