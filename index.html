@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 優化3：預先載入 8 張圖片，實現零延遲秒開 -->
+    <!-- 預先載入 8 張圖片，實現零延遲秒開 -->
     <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1sxdj5q83_6iWXXZJpmrFgAECbRXM6bgg">
     <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1lQw3A7SAOyP8TgLayc71t56bPR6o29_R">
     <link rel="preload" as="image" href="https://lh3.googleusercontent.com/d/1cWm7fpDiuZtJw4BkCuetxPJN22-OMLOH">
@@ -21,8 +21,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
     <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
     <script>
-        // 優化1：將 holdToDrag 設為 0，實現平板瞬間拖曳無延遲
-        MobileDragDrop.polyfill({ holdToDrag: 0 });
+        // 【iPad 終極優化】設定 50 毫秒的極短延遲，讓 iPad 能區分「點擊放大」與「拖曳」
+        MobileDragDrop.polyfill({ holdToDrag: 50 });
+        // 基礎的防止預設捲動
         window.addEventListener('touchmove', function() {}, {passive: false}); 
     </script>
 
@@ -32,6 +33,8 @@
             background-color: #f4f1ea; 
             background-image: url('https://www.transparenttextures.com/patterns/rice-paper-2.png');
             color: #333;
+            /* 禁用 iPad 邊緣的彈性拉扯效果 (Overscroll) */
+            overscroll-behavior-y: none;
         }
 
         /* --- 書籤導覽列樣式 (Tabs) --- */
@@ -58,7 +61,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             position: relative;
-            top: 3px; /* 為了蓋住底線 */
+            top: 3px; 
             display: flex;
             align-items: center;
             gap: 6px;
@@ -67,7 +70,7 @@
             background: #fdfbf7;
             color: #c94f4f;
             border-color: #8c7355;
-            padding-bottom: 15px; /* 凸出感 */
+            padding-bottom: 15px; 
             top: 0;
             z-index: 10;
         }
@@ -78,7 +81,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: #fdfbf7; /* 蓋掉底下的線 */
+            background: #fdfbf7; 
         }
         .bookmark-tab.locked {
             opacity: 0.7;
@@ -92,19 +95,34 @@
             border-style: dashed !important;
             border-color: #c94f4f !important;
         }
-        /* 優化：徹底解決平板拖曳卡頓與誤觸選取的問題 */
+        
+        /* 【iPad 終極優化】強制關閉所有原生選取與長按行為 */
         .card-element, .word-element {
-            touch-action: none; /* 禁用拖曳時的畫面滾動 */
-            -webkit-touch-callout: none; /* 禁用 iPad/iOS 長按彈出選單 (解決停頓感) */
-            -webkit-user-select: none; /* 禁用 Safari 文字反白選取 (解決變選取動作) */
-            user-select: none; /* 禁用一般文字反白選取 */
+            touch-action: none !important; 
+            -webkit-touch-callout: none !important; 
+            -webkit-user-select: none !important; 
+            user-select: none !important; 
+            -webkit-user-drag: element;
         }
-        /* 確保圖片不會觸發原生的拖曳干擾 */
         .img-container img {
             -webkit-user-drag: none;
+            pointer-events: none; /* 讓圖片不干擾拖曳事件 */
+        }
+        .cursor-zoom-in {
+            pointer-events: auto; /* 保留放大鏡的點擊功能 */
         }
 
         /* --- 關卡一專屬樣式 --- */
+        .l1-title-stamp {
+            display: inline-block;
+            background-color: #c94f4f;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
         .ink-border {
             border: 2px solid #2c2c2c;
             box-shadow: 4px 4px 0px rgba(44, 44, 44, 0.8);
@@ -118,6 +136,16 @@
         #l1-source-container .img-container { margin-bottom: 0 !important; }
 
         /* --- 關卡二專屬樣式 --- */
+        .l2-title-stamp {
+            display: inline-block;
+            background-color: #385b4f; 
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
         .word-block {
             background: linear-gradient(135deg, #fdfbf7 0%, #efe7d6 100%);
             border: 2px solid #8c7355;
@@ -147,7 +175,7 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
 
-    <!-- 優化2：書籤導覽列 (Tabs) -->
+    <!-- 書籤導覽列 (Tabs) -->
     <div class="bookmarks-container">
         <div id="tab1" class="bookmark-tab active" onclick="switchTab(1)">
             關卡一：詩境排序
@@ -164,7 +192,7 @@
         <header class="text-center mb-6 max-w-3xl">
             <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
                 請仔細觀察下方的 8 張「畫面圖卡」，想像《送友人》的情節推進。<br>
-                <strong class="text-red-700">操作方式：</strong>透過拖曳的方式移動到底下對應的格子中。若想修改，將圖卡直接互拖或拖回待選區即可。
+                <strong class="text-red-700">操作方式：</strong>透過<strong class="text-red-700">拖曳</strong>的方式移動到底下對應的格子中。若想修改，將圖卡直接互拖或拖回待選區即可。
             </p>
         </header>
 
@@ -265,6 +293,14 @@
     <!--                  遊戲主邏輯腳本                  -->
     <!-- ============================================== -->
     <script>
+        // 【iPad 終極優化】嚴格禁止拖曳時引發瀏覽器捲動
+        document.addEventListener('touchmove', function(e) {
+            // 如果手指摸在可拖曳的圖卡或木牌上，強制沒收網頁的捲動權限
+            if (e.target.closest('.card-element') || e.target.closest('.word-element')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
         // -------------------------
         // 系統與書籤導覽邏輯
         // -------------------------
@@ -391,7 +427,7 @@
                     </div>
                     <div class="absolute text-4xl">${card.emoji}</div>
                     <img src="${card.imgUrl}" alt="${card.desc}" 
-                         class="w-full h-full object-cover relative z-10 pointer-events-none"
+                         class="w-full h-full object-cover relative z-10"
                          onerror="this.style.display='none'">
                 </div>
                 <div class="card-desc text-sm font-bold text-center text-gray-800 leading-tight">${card.desc}</div>
