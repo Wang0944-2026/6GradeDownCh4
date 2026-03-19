@@ -92,9 +92,16 @@
             border-style: dashed !important;
             border-color: #c94f4f !important;
         }
-        /* 優化1配套：防止拖曳時瀏覽器同時滾動 */
+        /* 優化：徹底解決平板拖曳卡頓與誤觸選取的問題 */
         .card-element, .word-element {
-            touch-action: none;
+            touch-action: none; /* 禁用拖曳時的畫面滾動 */
+            -webkit-touch-callout: none; /* 禁用 iPad/iOS 長按彈出選單 (解決停頓感) */
+            -webkit-user-select: none; /* 禁用 Safari 文字反白選取 (解決變選取動作) */
+            user-select: none; /* 禁用一般文字反白選取 */
+        }
+        /* 確保圖片不會觸發原生的拖曳干擾 */
+        .img-container img {
+            -webkit-user-drag: none;
         }
 
         /* --- 關卡一專屬樣式 --- */
