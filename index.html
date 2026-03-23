@@ -37,25 +37,20 @@
             -webkit-touch-callout: none;
         }
 
-        /* --- 終極防護版：絕對固定書籤導覽列 (Fixed Tabs) --- */
+        /* --- 終極穩定版：標準書籤導覽列 (Static Layout) --- */
+        /* 放棄容易被平台裁切的 fixed/sticky，使用最原始可靠的相對定位排版 */
         .bookmarks-container {
             display: flex;
             justify-content: center;
             gap: 4px;
-            padding-top: 16px;
-            padding-bottom: 0;
+            margin-top: 16px;
+            margin-bottom: 24px;
             border-bottom: 3px solid #8c7355;
-            width: 100vw;
+            width: 100%;
+            max-w: 1024px;
             flex-wrap: wrap; 
-            /* 捨棄會失效的 sticky，改用絕對無敵的 fixed */
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 9999; /* 設到極高，絕對不被蓋住 */
-            background-color: #f4f1ea;
-            background-image: url('https://www.transparenttextures.com/patterns/rice-paper-2.png');
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 40; 
         }
         .bookmark-tab {
             padding: 10px 16px;
@@ -73,6 +68,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            outline: none;
         }
         @media (min-width: 768px) {
             .bookmark-tab { padding: 12px 24px; font-size: 1.1rem; }
@@ -91,7 +87,7 @@
             bottom: -3px;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
             background: #fdfbf7; 
         }
 
@@ -168,24 +164,25 @@
         }
     </style>
 </head>
-<!-- 移除原本 body 的 flex 設定，避免與 fixed 排版衝突 -->
-<body class="min-h-screen relative overflow-x-hidden text-[#333]">
+<body class="min-h-screen relative overflow-x-hidden text-[#333] flex flex-col items-center">
 
-    <!-- 書籤導覽列 (Tabs) - 全部解鎖且絕對固定在頂部 -->
-    <div class="bookmarks-container">
-        <div id="tab1" class="bookmark-tab active" onclick="switchTab(1)">
-            關卡一：詩境排序 <span id="tab1-time" class="text-sm ml-1 text-inherit opacity-80"></span>
-        </div>
-        <div id="tab2" class="bookmark-tab" onclick="switchTab(2)">
-            關卡二：詩句重組 <span id="tab2-time" class="text-sm ml-1 text-inherit opacity-80"></span>
-        </div>
-        <div id="tab3" class="bookmark-tab" onclick="switchTab(3)">
-            關卡三：詩意理解 <span id="tab3-time" class="text-sm ml-1 text-inherit opacity-80"></span>
+    <!-- 書籤導覽列 (Tabs) - 全面解鎖、標準排版保證不消失 -->
+    <div class="w-full flex justify-center px-4">
+        <div class="bookmarks-container">
+            <button id="tab1" class="bookmark-tab active" onclick="switchTab(1)">
+                關卡一：詩境排序 <span id="tab1-time" class="text-sm ml-1 text-inherit opacity-80"></span>
+            </button>
+            <button id="tab2" class="bookmark-tab" onclick="switchTab(2)">
+                關卡二：詩句重組 <span id="tab2-time" class="text-sm ml-1 text-inherit opacity-80"></span>
+            </button>
+            <button id="tab3" class="bookmark-tab" onclick="switchTab(3)">
+                關卡三：詩意理解 <span id="tab3-time" class="text-sm ml-1 text-inherit opacity-80"></span>
+            </button>
         </div>
     </div>
 
-    <!-- 內容保護區（為了不讓內容被固定在頂部的書籤蓋住，加入 pt-32 把內容往下推） -->
-    <div class="w-full pt-[120px] md:pt-[100px] pb-8 px-4 md:px-8 flex flex-col items-center">
+    <!-- 內容保護區 -->
+    <div class="w-full pb-8 px-4 md:px-8 flex flex-col items-center">
 
         <!-- ============================================== -->
         <!--                  關卡一：畫面區                  -->
@@ -438,6 +435,7 @@
             const tabs = [document.getElementById('tab1'), document.getElementById('tab2'), document.getElementById('tab3')];
             const containers = [document.getElementById('level1-container'), document.getElementById('level2-container'), document.getElementById('level3-container')];
 
+            // 徹底移除了所有的門禁阻擋邏輯，現在可以 100% 自由點擊切換！
             for (let i = 0; i < 3; i++) {
                 if (i + 1 === level) {
                     tabs[i].classList.add('active');
@@ -898,7 +896,7 @@
 
             document.getElementById('l3-submit-btn').classList.add('hidden');
             
-            // 標記第一次測驗已完成，僅顯示關卡三標題旁邊的再次挑戰按鈕
+            // 標記第一次測驗已完成，顯示關卡三標題旁邊的再次挑戰按鈕
             l3_first_completed = true;
             document.getElementById('l3-restart-btn').classList.remove('hidden');
             
