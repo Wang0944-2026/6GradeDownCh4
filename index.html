@@ -37,7 +37,7 @@
             -webkit-touch-callout: none;
         }
 
-        /* --- 升級版：吸頂書籤導覽列 (Sticky Tabs) --- */
+        /* --- 終極防護版：絕對固定書籤導覽列 (Fixed Tabs) --- */
         .bookmarks-container {
             display: flex;
             justify-content: center;
@@ -45,15 +45,17 @@
             padding-top: 16px;
             padding-bottom: 0;
             border-bottom: 3px solid #8c7355;
-            width: 100%;
+            width: 100vw;
             flex-wrap: wrap; 
-            /* 吸頂特效關鍵設定 */
-            position: sticky;
+            /* 捨棄會失效的 sticky，改用絕對無敵的 fixed */
+            position: fixed;
             top: 0;
-            z-index: 100; 
+            left: 0;
+            right: 0;
+            z-index: 9999; /* 設到極高，絕對不被蓋住 */
             background-color: #f4f1ea;
             background-image: url('https://www.transparenttextures.com/patterns/rice-paper-2.png');
-            box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
         .bookmark-tab {
             padding: 10px 16px;
@@ -166,9 +168,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center relative overflow-x-hidden">
+<!-- 移除原本 body 的 flex 設定，避免與 fixed 排版衝突 -->
+<body class="min-h-screen relative overflow-x-hidden text-[#333]">
 
-    <!-- 書籤導覽列 (Tabs) - 全部解鎖且吸頂常駐 -->
+    <!-- 書籤導覽列 (Tabs) - 全部解鎖且絕對固定在頂部 -->
     <div class="bookmarks-container">
         <div id="tab1" class="bookmark-tab active" onclick="switchTab(1)">
             關卡一：詩境排序 <span id="tab1-time" class="text-sm ml-1 text-inherit opacity-80"></span>
@@ -181,13 +184,13 @@
         </div>
     </div>
 
-    <!-- 內容保護區（為了不讓內容貼著書籤） -->
-    <div class="w-full p-4 md:p-8 flex flex-col items-center">
+    <!-- 內容保護區（為了不讓內容被固定在頂部的書籤蓋住，加入 pt-32 把內容往下推） -->
+    <div class="w-full pt-[120px] md:pt-[100px] pb-8 px-4 md:px-8 flex flex-col items-center">
 
         <!-- ============================================== -->
         <!--                  關卡一：畫面區                  -->
         <!-- ============================================== -->
-        <div id="level1-container" class="w-full max-w-5xl flex flex-col items-center mt-4">
+        <div id="level1-container" class="w-full max-w-5xl flex flex-col items-center">
             <header class="text-center mb-6 max-w-3xl">
                 <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
                     <span class="l1-title-stamp">關卡一</span>詩境圖卡排序解謎
@@ -223,7 +226,7 @@
         <!-- ============================================== -->
         <!--                  關卡二：畫面區                  -->
         <!-- ============================================== -->
-        <div id="level2-container" class="w-full max-w-5xl hidden flex-col items-center mt-4">
+        <div id="level2-container" class="w-full max-w-5xl hidden flex-col items-center">
             <header class="text-center mb-6 max-w-4xl">
                 <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
                     <span class="l2-title-stamp">關卡二</span>詩句重組挑戰
@@ -259,7 +262,7 @@
         <!-- ============================================== -->
         <!--                  關卡三：畫面區                  -->
         <!-- ============================================== -->
-        <div id="level3-container" class="w-full max-w-4xl hidden flex-col items-center mt-4">
+        <div id="level3-container" class="w-full max-w-4xl hidden flex-col items-center">
             <header class="text-center mb-6 w-full">
                 <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
                     <h1 class="text-3xl md:text-4xl font-bold tracking-wider text-gray-800 m-0">
