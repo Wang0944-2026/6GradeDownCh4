@@ -37,20 +37,23 @@
             -webkit-touch-callout: none;
         }
 
-        /* --- 書籤導覽列樣式 (Tabs) --- */
+        /* --- 升級版：吸頂書籤導覽列 (Sticky Tabs) --- */
         .bookmarks-container {
             display: flex;
             justify-content: center;
             gap: 4px;
-            margin-top: 24px; 
-            margin-bottom: 24px;
-            border-bottom: 3px solid #8c7355;
+            padding-top: 16px;
             padding-bottom: 0;
+            border-bottom: 3px solid #8c7355;
             width: 100%;
-            max-w: 1024px;
             flex-wrap: wrap; 
-            position: relative;
-            z-index: 40; 
+            /* 吸頂特效關鍵設定 */
+            position: sticky;
+            top: 0;
+            z-index: 100; 
+            background-color: #f4f1ea;
+            background-image: url('https://www.transparenttextures.com/patterns/rice-paper-2.png');
+            box-shadow: 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
         .bookmark-tab {
             padding: 10px 16px;
@@ -163,9 +166,9 @@
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
+<body class="min-h-screen flex flex-col items-center relative overflow-x-hidden">
 
-    <!-- 書籤導覽列 (Tabs) - 全部解鎖 -->
+    <!-- 書籤導覽列 (Tabs) - 全部解鎖且吸頂常駐 -->
     <div class="bookmarks-container">
         <div id="tab1" class="bookmark-tab active" onclick="switchTab(1)">
             關卡一：詩境排序 <span id="tab1-time" class="text-sm ml-1 text-inherit opacity-80"></span>
@@ -178,111 +181,116 @@
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!--                  關卡一：畫面區                  -->
-    <!-- ============================================== -->
-    <div id="level1-container" class="w-full max-w-5xl flex flex-col items-center">
-        <header class="text-center mb-6 max-w-3xl">
-            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
-                <span class="l1-title-stamp">關卡一</span>詩境圖卡排序解謎
-            </h1>
-            <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
-                ⏱️ 挑戰時間：<span id="timer-l1" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
-            </div>
-            <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
-                請仔細觀察下方的 8 張「畫面圖卡」，想像《送友人》的情節推進。<br>
-                <strong class="text-red-700">操作方式：</strong>透過<strong class="text-red-700">拖曳</strong>的方式移動到底下對應的格子中。若想修改，將圖卡直接互拖或拖回待選區即可。
-            </p>
-        </header>
+    <!-- 內容保護區（為了不讓內容貼著書籤） -->
+    <div class="w-full p-4 md:p-8 flex flex-col items-center">
 
-        <main class="w-full flex flex-col gap-8">
-            <div class="bg-white/50 p-6 rounded-xl border border-gray-300 shadow-inner min-h-[150px]">
-                <h2 class="text-xl font-bold mb-4 text-gray-700 border-b-2 border-gray-300 pb-2">散落的畫卷 (待選區)</h2>
-                <div id="l1-source-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-center"></div>
-            </div>
-
-            <div class="bg-[#ece8df] p-6 rounded-xl border-2 border-gray-400 shadow-md">
-                <h2 class="text-xl font-bold mb-4 text-gray-700 border-b-2 border-gray-400 pb-2">詩句順序 (1 ~ 8)</h2>
-                <div id="l1-target-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-            </div>
-
-            <div class="flex justify-center mt-2 mb-10">
-                <button id="l1-check-btn" class="bg-[#c94f4f] hover:bg-[#a63d3d] text-white text-xl font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 tracking-widest hidden">
-                    送出
-                </button>
-            </div>
-        </main>
-    </div>
-
-    <!-- ============================================== -->
-    <!--                  關卡二：畫面區                  -->
-    <!-- ============================================== -->
-    <div id="level2-container" class="w-full max-w-5xl hidden flex-col items-center">
-        <header class="text-center mb-6 max-w-4xl">
-            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
-                <span class="l2-title-stamp">關卡二</span>詩句重組挑戰
-            </h1>
-            <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
-                ⏱️ 挑戰時間：<span id="timer-l2" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
-            </div>
-            <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
-                請將上方打散的語詞木牌，拖曳到下方對應的空格中。<br>
-                <strong class="text-[#385b4f]">挑戰：</strong>依照五言律詩的節奏，拼出完整的《送友人》。（附有📌圖示的為固定提示喔！）
-            </p>
-        </header>
-
-        <main class="w-full flex flex-col gap-8">
-            <div class="bg-white/50 p-6 rounded-xl border border-gray-300 shadow-inner min-h-[120px]">
-                <h2 class="text-lg font-bold mb-4 text-gray-700 border-b-2 border-gray-300 pb-2">散落的詞語 (待選區)</h2>
-                <div id="l2-source-container" class="flex flex-wrap gap-3 justify-center"></div>
-            </div>
-
-            <div class="bg-[#ece8df] p-4 md:p-8 rounded-xl border-2 border-gray-400 shadow-md flex flex-col items-center">
-                <h2 class="text-lg font-bold mb-6 text-gray-700 border-b-2 border-gray-400 pb-2 w-full text-left">詩句重組區</h2>
-                <div id="l2-target-container" class="flex flex-col gap-4 md:gap-6 w-full max-w-4xl items-center"></div>
-            </div>
-
-            <div class="flex justify-center mt-2 mb-10">
-                <button id="l2-check-btn" class="bg-[#385b4f] hover:bg-[#2c473e] text-white text-xl font-bold py-3 px-12 rounded-full shadow-lg transition duration-300 tracking-widest hidden">
-                    送出
-                </button>
-            </div>
-        </main>
-    </div>
-
-    <!-- ============================================== -->
-    <!--                  關卡三：畫面區                  -->
-    <!-- ============================================== -->
-    <div id="level3-container" class="w-full max-w-4xl hidden flex-col items-center">
-        <header class="text-center mb-6 w-full">
-            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
-                <h1 class="text-3xl md:text-4xl font-bold tracking-wider text-gray-800 m-0">
-                    <span class="l3-title-stamp">關卡三</span>詩意理解測驗
+        <!-- ============================================== -->
+        <!--                  關卡一：畫面區                  -->
+        <!-- ============================================== -->
+        <div id="level1-container" class="w-full max-w-5xl flex flex-col items-center mt-4">
+            <header class="text-center mb-6 max-w-3xl">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
+                    <span class="l1-title-stamp">關卡一</span>詩境圖卡排序解謎
                 </h1>
-                <!-- 重新抽取按鈕：常駐在標題右側，預設隱藏 -->
-                <button id="l3-restart-btn" onclick="l3_initGame()" class="hidden bg-[#4f6b8c] hover:bg-[#3b516b] text-white py-2 px-5 rounded-full text-sm md:text-base font-bold transition duration-200 shadow-md">
-                    🔄 再次挑戰
+                <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
+                    ⏱️ 挑戰時間：<span id="timer-l1" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
+                </div>
+                <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
+                    請仔細觀察下方的 8 張「畫面圖卡」，想像《送友人》的情節推進。<br>
+                    <strong class="text-red-700">操作方式：</strong>透過<strong class="text-red-700">拖曳</strong>的方式移動到底下對應的格子中。若想修改，將圖卡直接互拖或拖回待選區即可。
+                </p>
+            </header>
+
+            <main class="w-full flex flex-col gap-8">
+                <div class="bg-white/50 p-6 rounded-xl border border-gray-300 shadow-inner min-h-[150px]">
+                    <h2 class="text-xl font-bold mb-4 text-gray-700 border-b-2 border-gray-300 pb-2">散落的畫卷 (待選區)</h2>
+                    <div id="l1-source-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 justify-items-center"></div>
+                </div>
+
+                <div class="bg-[#ece8df] p-6 rounded-xl border-2 border-gray-400 shadow-md">
+                    <h2 class="text-xl font-bold mb-4 text-gray-700 border-b-2 border-gray-400 pb-2">詩句順序 (1 ~ 8)</h2>
+                    <div id="l1-target-container" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+
+                <div class="flex justify-center mt-2 mb-10">
+                    <button id="l1-check-btn" class="bg-[#c94f4f] hover:bg-[#a63d3d] text-white text-xl font-bold py-3 px-10 rounded-full shadow-lg transition duration-300 tracking-widest hidden">
+                        送出
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- ============================================== -->
+        <!--                  關卡二：畫面區                  -->
+        <!-- ============================================== -->
+        <div id="level2-container" class="w-full max-w-5xl hidden flex-col items-center mt-4">
+            <header class="text-center mb-6 max-w-4xl">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
+                    <span class="l2-title-stamp">關卡二</span>詩句重組挑戰
+                </h1>
+                <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
+                    ⏱️ 挑戰時間：<span id="timer-l2" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
+                </div>
+                <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
+                    請將上方打散的語詞木牌，拖曳到下方對應的空格中。<br>
+                    <strong class="text-[#385b4f]">挑戰：</strong>依照五言律詩的節奏，拼出完整的《送友人》。（附有📌圖示的為固定提示喔！）
+                </p>
+            </header>
+
+            <main class="w-full flex flex-col gap-8">
+                <div class="bg-white/50 p-6 rounded-xl border border-gray-300 shadow-inner min-h-[120px]">
+                    <h2 class="text-lg font-bold mb-4 text-gray-700 border-b-2 border-gray-300 pb-2">散落的詞語 (待選區)</h2>
+                    <div id="l2-source-container" class="flex flex-wrap gap-3 justify-center"></div>
+                </div>
+
+                <div class="bg-[#ece8df] p-4 md:p-8 rounded-xl border-2 border-gray-400 shadow-md flex flex-col items-center">
+                    <h2 class="text-lg font-bold mb-6 text-gray-700 border-b-2 border-gray-400 pb-2 w-full text-left">詩句重組區</h2>
+                    <div id="l2-target-container" class="flex flex-col gap-4 md:gap-6 w-full max-w-4xl items-center"></div>
+                </div>
+
+                <div class="flex justify-center mt-2 mb-10">
+                    <button id="l2-check-btn" class="bg-[#385b4f] hover:bg-[#2c473e] text-white text-xl font-bold py-3 px-12 rounded-full shadow-lg transition duration-300 tracking-widest hidden">
+                        送出
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- ============================================== -->
+        <!--                  關卡三：畫面區                  -->
+        <!-- ============================================== -->
+        <div id="level3-container" class="w-full max-w-4xl hidden flex-col items-center mt-4">
+            <header class="text-center mb-6 w-full">
+                <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-wider text-gray-800 m-0">
+                        <span class="l3-title-stamp">關卡三</span>詩意理解測驗
+                    </h1>
+                    <!-- 重新抽取按鈕：常駐在標題右側，預設隱藏 -->
+                    <button id="l3-restart-btn" onclick="l3_initGame()" class="hidden bg-[#4f6b8c] hover:bg-[#3b516b] text-white py-2 px-5 rounded-full text-sm md:text-base font-bold transition duration-200 shadow-md">
+                        🔄 再次挑戰
+                    </button>
+                </div>
+                <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
+                    ⏱️ 挑戰時間：<span id="timer-l3" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
+                </div>
+                <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
+                    系統已從題庫中隨機為您挑選了 <strong class="text-[#4f6b8c]">10 題</strong>（包含注釋、語意與賞析）。<br>
+                    請選出最正確的答案，完成我們最終的挑戰吧！
+                </p>
+            </header>
+
+            <main class="w-full flex flex-col gap-6" id="l3-quiz-container">
+                <!-- 題目由 JS 動態生成 -->
+            </main>
+
+            <div class="flex justify-center mt-8 mb-16 w-full">
+                <button id="l3-submit-btn" onclick="l3_submitQuiz()" class="bg-[#4f6b8c] hover:bg-[#3b516b] text-white text-xl font-bold py-3 px-12 rounded-full shadow-lg transition duration-300 tracking-widest">
+                    交卷並看成績
                 </button>
             </div>
-            <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
-                ⏱️ 挑戰時間：<span id="timer-l3" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
-            </div>
-            <p class="text-lg text-gray-600 bg-white/60 p-4 rounded-lg shadow-sm border border-gray-200">
-                系統已從題庫中隨機為您挑選了 <strong class="text-[#4f6b8c]">10 題</strong>（包含注釋、語意與賞析）。<br>
-                請選出最正確的答案，完成我們最終的挑戰吧！
-            </p>
-        </header>
-
-        <main class="w-full flex flex-col gap-6" id="l3-quiz-container">
-            <!-- 題目由 JS 動態生成 -->
-        </main>
-
-        <div class="flex justify-center mt-8 mb-16 w-full">
-            <button id="l3-submit-btn" onclick="l3_submitQuiz()" class="bg-[#4f6b8c] hover:bg-[#3b516b] text-white text-xl font-bold py-3 px-12 rounded-full shadow-lg transition duration-300 tracking-widest">
-                交卷並看成績
-            </button>
         </div>
-    </div>
+
+    </div> <!-- 內容保護區結束 -->
 
     <!-- ============================================== -->
     <!--                  彈跳視窗區                    -->
@@ -330,9 +338,6 @@
             <p class="text-lg text-gray-700 mb-6" id="l3-score-msg">恭喜你！已經徹底讀懂《送友人》的意境了！</p>
             <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); document.getElementById('l3-review-modal').classList.remove('hidden');" class="bg-[#4f6b8c] hover:bg-[#3b516b] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-1 w-full">
                 📖 查看錯題解析
-            </button>
-            <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); l3_initGame();" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200 mt-2 block w-full text-center">
-                再次挑戰
             </button>
         </div>
     </div>
@@ -424,7 +429,7 @@
         }
 
         // -------------------------
-        // 系統與書籤導覽邏輯 (已全部開放)
+        // 系統與書籤導覽邏輯 (全開放、無門禁)
         // -------------------------
         function switchTab(level) {
             const tabs = [document.getElementById('tab1'), document.getElementById('tab2'), document.getElementById('tab3')];
@@ -442,6 +447,7 @@
                 }
             }
 
+            // 動態初始化內容 (如果還沒初始化的話)
             if (level === 2 && l2_placedWords.every(w => w === null)) l2_initGame();
             if (level === 3 && document.getElementById('l3-quiz-container').children.length === 0) l3_initGame();
         }
