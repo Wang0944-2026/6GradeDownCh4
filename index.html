@@ -38,12 +38,11 @@
         }
 
         /* --- 書籤導覽列樣式 (Tabs) --- */
-        /* 修復：加入 position, z-index 與較大的 margin-top，防止發布平台裁切遮擋 */
         .bookmarks-container {
             display: flex;
             justify-content: center;
             gap: 4px;
-            margin-top: 24px; /* 增加上方距離 */
+            margin-top: 24px; 
             margin-bottom: 24px;
             border-bottom: 3px solid #8c7355;
             padding-bottom: 0;
@@ -51,7 +50,7 @@
             max-w: 1024px;
             flex-wrap: wrap; 
             position: relative;
-            z-index: 40; /* 確保書籤在最上層 */
+            z-index: 40; 
         }
         .bookmark-tab {
             padding: 10px 16px;
@@ -89,11 +88,6 @@
             right: 0;
             height: 3px;
             background: #fdfbf7; 
-        }
-        .bookmark-tab.locked {
-            opacity: 0.7;
-            cursor: not-allowed;
-            background: #ccc6b8;
         }
 
         /* --- 共用樣式 --- */
@@ -171,16 +165,16 @@
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
 
-    <!-- 書籤導覽列 (Tabs) -->
+    <!-- 書籤導覽列 (Tabs) - 全部解鎖 -->
     <div class="bookmarks-container">
         <div id="tab1" class="bookmark-tab active" onclick="switchTab(1)">
             關卡一：詩境排序 <span id="tab1-time" class="text-sm ml-1 text-inherit opacity-80"></span>
         </div>
-        <div id="tab2" class="bookmark-tab locked" onclick="switchTab(2)">
-            <span id="tab2-lock">🔒</span> 關卡二：詩句重組 <span id="tab2-time" class="text-sm ml-1 text-inherit opacity-80"></span>
+        <div id="tab2" class="bookmark-tab" onclick="switchTab(2)">
+            關卡二：詩句重組 <span id="tab2-time" class="text-sm ml-1 text-inherit opacity-80"></span>
         </div>
-        <div id="tab3" class="bookmark-tab locked" onclick="switchTab(3)">
-            <span id="tab3-lock">🔒</span> 關卡三：詩意理解 <span id="tab3-time" class="text-sm ml-1 text-inherit opacity-80"></span>
+        <div id="tab3" class="bookmark-tab" onclick="switchTab(3)">
+            關卡三：詩意理解 <span id="tab3-time" class="text-sm ml-1 text-inherit opacity-80"></span>
         </div>
     </div>
 
@@ -261,9 +255,15 @@
     <!-- ============================================== -->
     <div id="level3-container" class="w-full max-w-4xl hidden flex-col items-center">
         <header class="text-center mb-6 w-full">
-            <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
-                <span class="l3-title-stamp">關卡三</span>詩意理解測驗
-            </h1>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
+                <h1 class="text-3xl md:text-4xl font-bold tracking-wider text-gray-800 m-0">
+                    <span class="l3-title-stamp">關卡三</span>詩意理解測驗
+                </h1>
+                <!-- 重新抽取按鈕：常駐在標題右側，預設隱藏 -->
+                <button id="l3-restart-btn" onclick="l3_initGame()" class="hidden bg-[#4f6b8c] hover:bg-[#3b516b] text-white py-2 px-5 rounded-full text-sm md:text-base font-bold transition duration-200 shadow-md">
+                    🔄 再次挑戰
+                </button>
+            </div>
             <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
                 ⏱️ 挑戰時間：<span id="timer-l3" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
             </div>
@@ -293,7 +293,7 @@
         <div class="bg-[#f4f1ea] p-8 rounded-xl border-4 border-[#c94f4f] shadow-2xl max-w-md text-center transform scale-95 transition-transform duration-300 relative">
             <div class="text-6xl mb-4">📜🎉</div>
             <h2 class="text-3xl font-bold mb-2 text-[#c94f4f]">太厲害了！</h2>
-            <p class="text-lg text-gray-700 mb-6">你成功還原了李白《送友人》的完整場景！書籤已為您解鎖，準備好挑戰文字重組了嗎？</p>
+            <p class="text-lg text-gray-700 mb-6">你成功還原了李白《送友人》的完整場景！準備好挑戰其他關卡了嗎？</p>
             <button onclick="transitionToLevel(2)" class="bg-[#c94f4f] hover:bg-[#a63d3d] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-3 w-full">
                 進入 - 關卡二
             </button>
@@ -308,7 +308,7 @@
         <div class="bg-[#f4f1ea] p-8 rounded-xl border-4 border-[#385b4f] shadow-2xl max-w-md text-center transform scale-95 transition-transform duration-300 relative">
             <div class="text-6xl mb-4">🏆📖</div>
             <h2 class="text-3xl font-bold mb-2 text-[#385b4f]">完美過關！</h2>
-            <p class="text-lg text-gray-700 mb-6">太棒了！你已經完全掌握了《送友人》的對仗與結構！準備好迎接最後的測驗了嗎？</p>
+            <p class="text-lg text-gray-700 mb-6">太棒了！你已經完全掌握了《送友人》的對仗與結構！可以前往挑戰其他關卡囉！</p>
             <button onclick="transitionToLevel(3)" class="bg-[#385b4f] hover:bg-[#2c473e] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-3 w-full">
                 進入 - 關卡三
             </button>
@@ -328,11 +328,11 @@
             <h2 class="text-3xl font-bold mb-2 text-[#4f6b8c]">測驗結算</h2>
             <div class="text-5xl font-bold text-red-600 mb-4" id="l3-score-display">100 分</div>
             <p class="text-lg text-gray-700 mb-6" id="l3-score-msg">恭喜你！已經徹底讀懂《送友人》的意境了！</p>
-            <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); document.getElementById('l3-review-modal').classList.remove('hidden');" class="bg-[#4f6b8c] hover:bg-[#3b516b] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-3 w-full">
+            <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); document.getElementById('l3-review-modal').classList.remove('hidden');" class="bg-[#4f6b8c] hover:bg-[#3b516b] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-1 w-full">
                 📖 查看錯題解析
             </button>
-            <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); l3_initGame();" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200">
-                重新抽取 10 題挑戰
+            <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); l3_initGame();" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200 mt-2 block w-full text-center">
+                再次挑戰
             </button>
         </div>
     </div>
@@ -377,7 +377,7 @@
         }, { passive: false });
 
         // -------------------------
-        // 新增：全域計時器系統
+        // 全域計時器系統
         // -------------------------
         const timers = {
             1: { sec: 0, id: null, done: false },
@@ -409,7 +409,6 @@
             pauseTimer(level);
             timers[level].done = true;
             const tabTime = document.getElementById(`tab${level}-time`);
-            // 記錄在書籤上
             if (tabTime) tabTime.innerText = `(${formatTime(timers[level].sec)})`;
         }
 
@@ -425,51 +424,21 @@
         }
 
         // -------------------------
-        // 系統與書籤導覽邏輯
+        // 系統與書籤導覽邏輯 (已全部開放)
         // -------------------------
-        let isLevel2Unlocked = false;
-        let isLevel3Unlocked = false;
-
-        function checkUnlockStatus() {
-            // 【老師測試模式：全面解鎖】
-            unlockLevel2();
-            unlockLevel3();
-
-            // 【正式發布模式：恢復上鎖】
-            // if (sessionStorage.getItem('level1_passed') === 'true') unlockLevel2();
-            // if (sessionStorage.getItem('level2_passed') === 'true') unlockLevel3();
-        }
-
-        function unlockLevel2() {
-            isLevel2Unlocked = true;
-            const tab2 = document.getElementById('tab2');
-            tab2.classList.remove('locked');
-            document.getElementById('tab2-lock').style.display = 'none';
-        }
-
-        function unlockLevel3() {
-            isLevel3Unlocked = true;
-            const tab3 = document.getElementById('tab3');
-            tab3.classList.remove('locked');
-            document.getElementById('tab3-lock').style.display = 'none';
-        }
-
         function switchTab(level) {
             const tabs = [document.getElementById('tab1'), document.getElementById('tab2'), document.getElementById('tab3')];
             const containers = [document.getElementById('level1-container'), document.getElementById('level2-container'), document.getElementById('level3-container')];
-
-            if (level === 2 && !isLevel2Unlocked) { showError("尚未解鎖！", "請先完成關卡一。"); return; }
-            if (level === 3 && !isLevel3Unlocked) { showError("尚未解鎖！", "請先完成關卡二。"); return; }
 
             for (let i = 0; i < 3; i++) {
                 if (i + 1 === level) {
                     tabs[i].classList.add('active');
                     containers[i].classList.remove('hidden'); containers[i].classList.add('flex');
-                    startTimer(i + 1); // 啟動或恢復該關卡的計時器
+                    startTimer(i + 1); 
                 } else {
                     tabs[i].classList.remove('active');
                     containers[i].classList.add('hidden'); containers[i].classList.remove('flex');
-                    pauseTimer(i + 1); // 暫停其他關卡的計時器
+                    pauseTimer(i + 1); 
                 }
             }
 
@@ -534,7 +503,6 @@
                 targetContainer.appendChild(slot);
             }
             
-            // 重置並啟動第一關計時器
             resetTimer(1);
         }
 
@@ -605,8 +573,7 @@
             });
 
             if (isAllCorrect) {
-                stopTimer(1); // 第一關通關，停止計時並寫入書籤
-                sessionStorage.setItem('level1_passed', 'true'); unlockLevel2();
+                stopTimer(1); 
                 document.getElementById('l1-success-modal').classList.remove('hidden');
             } else {
                 showError("順序有點不對喔！", "錯誤的圖卡已退回，請重新思考起承轉合的邏輯。");
@@ -681,7 +648,6 @@
             sourceWords.sort(() => Math.random() - 0.5).forEach(word => { sourceContainer.appendChild(l2_createWordElement(word)); });
             l2_checkCompletion();
             
-            // 重置第二關計時器
             resetTimer(2);
         }
 
@@ -739,8 +705,7 @@
             });
 
             if (isAllCorrect) {
-                stopTimer(2); // 第二關通關，停止計時並寫入書籤
-                sessionStorage.setItem('level2_passed', 'true'); unlockLevel3();
+                stopTimer(2); 
                 document.getElementById('l2-success-modal').classList.remove('hidden');
             } else {
                 showError("有幾句詩排錯了喔！", "錯誤的詞語已退回，請再試試看。");
@@ -794,11 +759,18 @@
         ];
 
         let l3_currentQuiz = [];
+        let l3_first_completed = false; 
 
         function l3_initGame() {
             const container = document.getElementById('l3-quiz-container');
             container.innerHTML = '';
             document.getElementById('l3-submit-btn').classList.remove('hidden');
+            
+            if (l3_first_completed) {
+                document.getElementById('l3-restart-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('l3-restart-btn').classList.add('hidden');
+            }
             
             const shuffledDB = [...l3_allQuestions].sort(() => Math.random() - 0.5);
             l3_currentQuiz = shuffledDB.slice(0, 10);
@@ -847,7 +819,6 @@
                 container.appendChild(qDiv);
             });
             
-            // 重置第三關計時器
             resetTimer(3);
         }
 
@@ -856,7 +827,6 @@
             let allAnswered = true;
             let unAnsweredIndices = [];
 
-            // 第一階段檢查：只掃描是否全部作答完畢
             l3_currentQuiz.forEach((item, index) => {
                 const selected = document.querySelector(`input[name="q${index}"]:checked`);
                 if (!selected) {
@@ -865,7 +835,6 @@
                 }
             });
 
-            // 如果有漏答，閃爍紅框提示並直接中斷函式
             if (!allAnswered) {
                 unAnsweredIndices.forEach(idx => {
                     const qContainer = document.getElementById(`q-container-${idx}`);
@@ -876,7 +845,6 @@
                 return;
             }
 
-            // 第二階段：確認全答後，停止計時並進行批改
             stopTimer(3);
             
             const reviewContainer = document.getElementById('l3-review-container');
@@ -902,7 +870,6 @@
                     correctLabel.classList.add('bg-green-100', 'border-green-500');
                 }
 
-                // 產生錯題集項目
                 const reviewItem = document.createElement('div');
                 reviewItem.className = `p-4 md:p-6 mb-4 rounded-xl border-2 ${isCorrect ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`;
                 reviewItem.innerHTML = `
@@ -921,6 +888,10 @@
             });
 
             document.getElementById('l3-submit-btn').classList.add('hidden');
+            
+            // 標記第一次測驗已完成，僅顯示關卡三標題旁邊的再次挑戰按鈕
+            l3_first_completed = true;
+            document.getElementById('l3-restart-btn').classList.remove('hidden');
             
             const modal = document.getElementById('l3-success-modal');
             const scoreDisplay = document.getElementById('l3-score-display');
@@ -952,11 +923,8 @@
         // ==============================================
         //                  啟動點
         // ==============================================
-        sessionStorage.removeItem('level1_passed');
-        sessionStorage.removeItem('level2_passed');
-        checkUnlockStatus();
-        l1_initGame();
-        switchTab(1);
+        l1_initGame(); 
+        switchTab(1); 
     </script>
 </body>
 </html>
