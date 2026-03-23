@@ -38,17 +38,20 @@
         }
 
         /* --- 書籤導覽列樣式 (Tabs) --- */
+        /* 修復：加入 position, z-index 與較大的 margin-top，防止發布平台裁切遮擋 */
         .bookmarks-container {
             display: flex;
             justify-content: center;
             gap: 4px;
-            margin-top: 10px;
-            margin-bottom: 20px;
+            margin-top: 24px; /* 增加上方距離 */
+            margin-bottom: 24px;
             border-bottom: 3px solid #8c7355;
             padding-bottom: 0;
             width: 100%;
             max-w: 1024px;
             flex-wrap: wrap; 
+            position: relative;
+            z-index: 40; /* 確保書籤在最上層 */
         }
         .bookmark-tab {
             padding: 10px 16px;
@@ -189,7 +192,6 @@
             <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
                 <span class="l1-title-stamp">關卡一</span>詩境圖卡排序解謎
             </h1>
-            <!-- 新增：計時器顯示 -->
             <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
                 ⏱️ 挑戰時間：<span id="timer-l1" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
             </div>
@@ -226,7 +228,6 @@
             <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
                 <span class="l2-title-stamp">關卡二</span>詩句重組挑戰
             </h1>
-            <!-- 新增：計時器顯示 -->
             <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
                 ⏱️ 挑戰時間：<span id="timer-l2" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
             </div>
@@ -263,7 +264,6 @@
             <h1 class="text-3xl md:text-4xl font-bold mb-4 tracking-wider text-gray-800">
                 <span class="l3-title-stamp">關卡三</span>詩意理解測驗
             </h1>
-            <!-- 新增：計時器顯示 -->
             <div class="flex justify-center items-center mb-4 text-gray-700 font-bold text-lg">
                 ⏱️ 挑戰時間：<span id="timer-l3" class="ml-2 font-mono text-[#c94f4f] text-xl">00:00</span>
             </div>
@@ -322,7 +322,6 @@
     <!-- 關卡三過關 (成績結算) -->
     <div id="l3-success-modal" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-50">
         <div class="bg-[#f4f1ea] p-8 rounded-xl border-4 border-[#4f6b8c] shadow-2xl max-w-md text-center transform scale-95 transition-transform duration-300 relative">
-            <!-- 修復：新增 X 關閉按鈕 -->
             <button onclick="document.getElementById('l3-success-modal').classList.add('hidden');" class="absolute top-3 right-4 text-gray-400 hover:text-red-500 font-bold text-3xl leading-none">&times;</button>
             
             <div class="text-6xl mb-2" id="l3-score-emoji">🎓💯</div>
@@ -332,7 +331,6 @@
             <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); document.getElementById('l3-review-modal').classList.remove('hidden');" class="bg-[#4f6b8c] hover:bg-[#3b516b] text-white py-3 px-8 rounded-lg text-xl font-bold transition duration-200 shadow-lg tracking-wider mb-3 w-full">
                 📖 查看錯題解析
             </button>
-            <!-- 修復：補上 onClick 中的隱藏視窗語法 -->
             <button onclick="document.getElementById('l3-success-modal').classList.add('hidden'); l3_initGame();" class="text-gray-500 hover:text-gray-800 underline text-sm transition duration-200">
                 重新抽取 10 題挑戰
             </button>
@@ -765,7 +763,7 @@
             { q: "「白水繞東城」中的「白水」意指為何？", options: ["乾涸的河床", "結冰的湖面", "清澈的河水", "白色的波浪"], ans: 2, explanation: "「白水」指的是清澈明淨的河水。在陽光照射下，河水泛著亮白的光芒。" },
             { q: "「此地『一』為別」的「一」，在句中的解釋應為？", options: ["一起、一同", "一個人", "第一次", "一旦、一經"], ans: 3, explanation: "「一」在這裡做副詞，意思是「一旦、一經」。整句是指一旦在這裡分別，便不知何時能再相見。" },
             { q: "「孤蓬萬里征」中的「征」，意思是？", options: ["遠行", "出戰打仗", "逃亡", "尋找"], ans: 0, explanation: "「征」在古詩詞中常指長途跋涉、遠行。例如：征途、征人。" },
-            { q: "「孤蓬」在詩中借指的是什麼？", options: ["枯萎凋零的樹木", "隨風飄飛的蓬草", "孤立無援的帳篷", "水上漂浮的蓮葉"], ans: 1, explanation: "「蓬」是一種草本植物，秋天枯萎後容易連根拔起，隨風飛旋。詩人用「孤蓬」來生動比喻即將孤單遠行的友人。" },
+            { q: "「孤蓬」在詩中借指的是什麼？", options: ["枯萎凋零的樹木", "隨風飘飛的蓬草", "孤立無援的帳篷", "水上漂浮的蓮葉"], ans: 1, explanation: "「蓬」是一種草本植物，秋天枯萎後容易連根拔起，隨風飛旋。詩人用「孤蓬」來生動比喻即將孤單遠行的友人。" },
             { q: "「浮雲『遊子』意」中的「遊子」，在此詩中指的是誰？", options: ["雲遊四海的僧人", "離家遠行的人（指友人）", "迷路的旅人", "作者李白自己"], ans: 1, explanation: "「遊子」指的是離家遠遊的人。在這首送別詩中，遊子正是那位即將啟程遠去的友人。" },
             { q: "「落日『故人』情」中的「故人」，指的是誰？", options: ["遠行的友人", "家鄉的親人", "已經過世的親友", "老朋友（指作者自己）"], ans: 3, explanation: "「故人」是老朋友的意思。李白在這裡是以「故人」自稱，表達自己對老朋友深厚的不捨之情。" },
             { q: "「揮手自『茲』去」的「茲」，意思是？", options: ["如今", "此、這裡", "增加", "於是"], ans: 1, explanation: "「茲」是代名詞，意思是「此、這裡」。自茲去，就是從這個地方離開。" },
@@ -944,7 +942,7 @@
                 emoji.innerText = "👍📚";
             } else {
                 scoreDisplay.className = 'text-5xl font-bold text-red-600 mb-4';
-                scoreMsg.innerText = "沒關係，學習就是不斷嘗試的過程。打開錯題集看正確答案，再挑戰一次吧！";
+                scoreMsg.innerText = "沒關係，學習這個過程最重要的是訂正！打開錯題集看正確答案，再挑戰一次吧！";
                 emoji.innerText = "💪🌱";
             }
             
